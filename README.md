@@ -14,11 +14,13 @@ make apply                 # your real model on full 1,033-row tech-news corpus
 ```
 
 ## TODO for learner — fill these in before submitting
-
-- **Hugging Face Hub model URL:** _(paste your HF Hub model URL here, e.g. `https://huggingface.co/<your-username>/m7-app-review-sentiment`)_
+- **Hugging Face Hub model URL:** `https://huggingface.co/alradi/m7-app-review-sentiment`
 - **Reproducibility command:** `cp .env.example .env` (set MODEL_HUB_ID), then `make apply`.
 - **What the model was trained on and why we're applying it here:**
-  _(1–2 paragraphs from the learner — what the app-review sentiment model was trained on, why we're testing it on tech / entertainment news, what we expect to learn about domain shift)_
+
+  The model is a fine-tuned DistilBERT classifier trained on mobile app reviews labeled `positive`, `neutral`, or `negative`. Reviews are short, first-person, and opinion-driven ("the app crashes", "love the new update").
+
+  Here we apply it to tech/entertainment news articles — longer, third-person, journalist-written text. The goal is to see how the model behaves outside its training domain: do confidence scores stay meaningful, and does it misfire on news language that superficially resembles review language? The results are in `domain-shift-analysis.md`.
 
 ## Submission
 

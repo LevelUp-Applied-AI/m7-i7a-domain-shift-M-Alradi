@@ -28,10 +28,10 @@ def load_classifier(model_hub_id: str):
 
     Returns (model, tokenizer).
     """
-    # TODO: AutoModelForSequenceClassification.from_pretrained(model_hub_id)
-    # TODO: AutoTokenizer.from_pretrained(model_hub_id)
-    # TODO: return both
-    raise NotImplementedError
+    model = AutoModelForSequenceClassification.from_pretrained(model_hub_id)
+    tokenizer = AutoTokenizer.from_pretrained(model_hub_id)
+
+    return model, tokenizer
 
 
 def predict(text: str, model, tokenizer):
@@ -42,13 +42,30 @@ def predict(text: str, model, tokenizer):
 
     Returns (predicted_label_name, predicted_probability).
     """
-    # TODO: tokenize text with truncation, max_length=128, return_tensors="pt"
-    # TODO: forward pass under torch.no_grad()
-    # TODO: softmax the logits along the last dim
-    # TODO: get argmax index and the probability at that index
-    # TODO: convert the index to a label name using model.config.id2label
-    # TODO: return (label_name, float(probability))
-    raise NotImplementedError
+    inputs = tokenizer(
+        text,
+        truncation=True,
+        max_length=128,
+        return_tensors="pt"
+    )
+
+    # Forward pass
+    with torch.no_grad():
+        outputs = model(**inputs)
+
+    # Convert logits to probabilities
+    probabilities = torch.softmax(outputs.logits, dim=-1)
+
+    # Get predicted class index
+    pred_idx = torch.argmax(probabilities, dim=-1).item()
+
+    # Get probability of predicted class
+    pred_prob = probabilities[0, pred_idx].item()
+
+    # Convert index to label name
+    label_name = model.config.id2label[pred_idx]
+
+    return label_name, float(pred_prob)
 
 
 def apply_to_corpus(csv_path: str, model_hub_id: str, output_path: str) -> None:
@@ -60,12 +77,30 @@ def apply_to_corpus(csv_path: str, model_hub_id: str, output_path: str) -> None:
     Output columns: article_id, text_excerpt, predicted_label, predicted_probability.
     text_excerpt is the first 200 characters of the article text.
     """
-    # TODO: load model and tokenizer once (do not re-load per row)
-    # TODO: read the CSV with pandas
-    # TODO: iterate over rows, calling predict() on the `text` column
-    # TODO: build a DataFrame with the four output columns
-    # TODO: write to output_path with index=False
-    raise NotImplementedError
+    model, tokenizer = load_classifier(model_hub_id)
+    df = pd.read_csv(csv_path)
+    results = []
+
+    # Iterate through rows
+    for _, row in df.iterrows():
+        text = row["text"]
+
+        predicted_label, predicted_probability = predict(
+            text,
+            model,
+            tokenizer
+        )
+
+        results.append({
+            "article_id": row["article_id"],
+            "text_excerpt": text[:200],
+            "predicted_label": predicted_label,
+            "predicted_probability": predicted_probability
+        })
+
+    # Create output DataFrame
+    output_df = pd.DataFrame(results)
+    output_df.to_csv(output_path, index=False)
 
 
 def main() -> None:
