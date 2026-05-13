@@ -18,9 +18,9 @@ make apply                 # your real model on full 1,033-row tech-news corpus
 - **Reproducibility command:** `cp .env.example .env` (set MODEL_HUB_ID), then `make apply`.
 - **What the model was trained on and why we're applying it here:**
 
-  The model is a fine-tuned DistilBERT classifier trained on mobile app reviews labeled `positive`, `neutral`, or `negative`. Reviews are short, first-person, and opinion-driven ("the app crashes", "love the new update").
-
-  Here we apply it to tech/entertainment news articles — longer, third-person, journalist-written text. The goal is to see how the model behaves outside its training domain: do confidence scores stay meaningful, and does it misfire on news language that superficially resembles review language? The results are in `domain-shift-analysis.md`.
+  The model is a fine-tuned DistilBERT classifier trained on mobile app reviews labeled `positive`, `neutral`, or `negative`. Reviews are short, first-person, and opinion-driven ("the app crashes", "love the new update") - where sentiment is explicit and the author is a real user expressing a direct experience with a product.
+  Here we apply it to tech and entertainment news articles from sources like CNN, Wired, and Mashable. These articles are longer, written in third-person journalistic prose, and describe events rather than express personal opinions. The vocabulary overlaps — both domains discuss software, gadgets, and public reactions — but the intent and structure are fundamentally different. This is a deliberate domain-shift experiment: we want to see whether the model's confidence scores remain meaningful outside its training distribution, which surface features trigger false positives or negatives, and how severely the class balance breaks down. 
+  Findings are documented in `domain-shift-analysis.md`.
 
 ## Submission
 
